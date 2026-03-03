@@ -75,6 +75,9 @@ if [ ! -f mailcow.conf ]; then
   sed -i 's/^HTTPS_PORT=.*/HTTPS_PORT=8443/' mailcow.conf
   sed -i 's/^HTTPS_BIND=.*/HTTPS_BIND=127.0.0.1/' mailcow.conf
 
+  # Disable HTTP→HTTPS redirect (Traefik handles this)
+  sed -i 's/^HTTP_REDIRECT=.*/HTTP_REDIRECT=n/' mailcow.conf
+
   # Disable mailcow's Let's Encrypt (Traefik + certdumper handles certs)
   sed -i 's/^SKIP_LETS_ENCRYPT=.*/SKIP_LETS_ENCRYPT=y/' mailcow.conf
   sed -i 's/^AUTODISCOVER_SAN=.*/AUTODISCOVER_SAN=n/' mailcow.conf

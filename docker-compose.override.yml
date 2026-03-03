@@ -13,7 +13,9 @@ services:
       - "traefik.http.routers.mailcow-web.entrypoints=websecure"
       - "traefik.http.routers.mailcow-web.tls=true"
       - "traefik.http.routers.mailcow-web.tls.certresolver=letsencrypt"
-      - "traefik.http.services.mailcow-web.loadbalancer.server.port=8080"
+      - "traefik.http.services.mailcow-web.loadbalancer.server.port=8443"
+      - "traefik.http.services.mailcow-web.loadbalancer.server.scheme=https"
+      - "traefik.http.services.mailcow-web.loadbalancer.serversTransport=mailcow-transport@file"
 
       # autodiscover.abdulkhalek.dev
       - "traefik.http.routers.mailcow-autodiscover.rule=Host(`autodiscover.abdulkhalek.dev`)"
