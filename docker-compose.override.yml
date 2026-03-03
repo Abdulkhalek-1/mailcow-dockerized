@@ -1,0 +1,52 @@
+services:
+  # Connect nginx-mailcow to Traefik's gateway network
+  nginx-mailcow:
+    networks:
+      mailcow-network:
+      gateway:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=gateway"
+
+      # mail.abdulkhalek.dev → mailcow web UI
+      - "traefik.http.routers.mailcow-web.rule=Host(`mail.abdulkhalek.dev`)"
+      - "traefik.http.routers.mailcow-web.entrypoints=websecure"
+      - "traefik.http.routers.mailcow-web.tls=true"
+      - "traefik.http.routers.mailcow-web.tls.certresolver=letsencrypt"
+      - "traefik.http.services.mailcow-web.loadbalancer.server.port=8080"
+
+      # autodiscover.abdulkhalek.dev
+      - "traefik.http.routers.mailcow-autodiscover.rule=Host(`autodiscover.abdulkhalek.dev`)"
+      - "traefik.http.routers.mailcow-autodiscover.entrypoints=websecure"
+      - "traefik.http.routers.mailcow-autodiscover.tls=true"
+      - "traefik.http.routers.mailcow-autodiscover.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.mailcow-autodiscover.service=mailcow-web"
+
+      # autoconfig.abdulkhalek.dev
+      - "traefik.http.routers.mailcow-autoconfig.rule=Host(`autoconfig.abdulkhalek.dev`)"
+      - "traefik.http.routers.mailcow-autoconfig.entrypoints=websecure"
+      - "traefik.http.routers.mailcow-autoconfig.tls=true"
+      - "traefik.http.routers.mailcow-autoconfig.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.mailcow-autoconfig.service=mailcow-web"
+
+  # Extract Let's Encrypt certs from Traefik for mail protocols (SMTP/IMAP SSL)
+  certdumper:
+    image: ghcr.io/kereis/traefik-certs-dumper:latest
+    container_name: certdumper-mailcow
+    restart: unless-stopped
+    network_mode: none
+    command: --restart-containers mailcowdockerized-postfix-mailcow-1,mailcowdockerized-dovecot-mailcow-1,mailcowdockerized-nginx-mailcow-1
+    volumes:
+      - /home/abdulkhalek/Projects/server-gateway/acme.json:/traefik/acme.json:ro
+      - ./data/assets/ssl/:/output:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOMAIN=mail.abdulkhalek.dev
+      - CERTIFICATE_FILE_NAME=cert
+      - CERTIFICATE_FILE_EXT=.pem
+      - PRIVATE_KEY_FILE_NAME=key
+      - PRIVATE_KEY_FILE_EXT=.pem
+
+networks:
+  gateway:
+    external: true

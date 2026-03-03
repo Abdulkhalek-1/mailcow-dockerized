@@ -67,7 +67,8 @@ data/web/inc/vars.local.inc.php
 data/web/inc/app_info.inc.php
 data/web/nextcloud*/
 data/web/rc*/
-docker-compose.override.yml
+# Track our override (un-ignore upstream's default)
+!docker-compose.override.yml
 mailcow.conf
 mailcow.conf_backup
 rebuild-images.sh
@@ -76,3 +77,6 @@ update_diffs/
 create_cold_standby.sh
 !data/conf/nginx/mailcow_auth.conf
 data/conf/postfix/postfix-tlspol
+
+# Claude Code
+.claude/
