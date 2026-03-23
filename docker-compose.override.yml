@@ -37,7 +37,7 @@ services:
     container_name: certdumper-mailcow
     restart: unless-stopped
     network_mode: none
-    command: --restart-containers mailcowdockerized-postfix-mailcow-1,mailcowdockerized-dovecot-mailcow-1,mailcowdockerized-nginx-mailcow-1
+    command: --flat --restart-containers mailcowdockerized-postfix-mailcow-1,mailcowdockerized-dovecot-mailcow-1,mailcowdockerized-nginx-mailcow-1
     volumes:
       - /opt/server-gateway/acme.json:/traefik/acme.json:ro
       - ./data/assets/ssl/:/output:rw
