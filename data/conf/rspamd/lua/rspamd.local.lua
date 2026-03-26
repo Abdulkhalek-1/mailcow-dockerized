@@ -766,6 +766,47 @@ rspamd_config:register_symbol({
   end
 })
 
+-- Add List-Unsubscribe headers for authenticated outgoing mail
+-- Required by Google/Yahoo for bulk senders since Feb 2024
+rspamd_config:register_symbol({
+  name = 'LIST_UNSUBSCRIBE_HEADER',
+  type = 'postfilter',
+  callback = function(task)
+    local rspamd_logger = require "rspamd_logger"
+    local uname = task:get_user()
+
+    -- Only apply to authenticated (outgoing) mail
+    if not uname then
+      return false
+    end
+
+    -- Skip if List-Unsubscribe header already exists (e.g. mailing list software)
+    if task:get_header('List-Unsubscribe') then
+      return false
+    end
+
+    local from = task:get_from('mime')
+    if not from or not from[1] or not from[1].addr then
+      return false
+    end
+
+    local from_addr = from[1].addr
+    local from_domain = from[1].domain
+
+    -- Add RFC 8058 one-click unsubscribe headers
+    task:set_milter_reply({
+      add_headers = {
+        ['List-Unsubscribe'] = string.format('<mailto:unsubscribe@%s?subject=unsubscribe>', from_domain),
+        ['List-Unsubscribe-Post'] = 'List-Unsubscribe=One-Click',
+      }
+    })
+
+    rspamd_logger.infox(rspamd_config, "LIST_UNSUBSCRIBE_HEADER: added List-Unsubscribe headers for user %s", uname)
+    return true
+  end,
+  priority = 15
+})
+
 rspamd_config:register_symbol({
   name = 'MOO_FOOTER',
   type = 'prefilter',
