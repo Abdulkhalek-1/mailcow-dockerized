@@ -92,6 +92,7 @@ services:
       - "traefik.http.routers.cypht.entrypoints=websecure"
       - "traefik.http.routers.cypht.tls=true"
       - "traefik.http.routers.cypht.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.cypht.middlewares=secure-default@file"
       - "traefik.http.services.cypht.loadbalancer.server.port=80"
 
 volumes:
