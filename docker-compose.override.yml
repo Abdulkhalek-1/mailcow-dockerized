@@ -49,6 +49,55 @@ services:
       - PRIVATE_KEY_FILE_NAME=key
       - PRIVATE_KEY_FILE_EXT=.pem
 
+  cypht-mailcow:
+    image: cypht/cypht:2.7.0
+    container_name: cypht-mailcow
+    restart: unless-stopped
+    depends_on:
+      - mysql-mailcow
+      - dovecot-mailcow
+    environment:
+      - AUTH_USERNAME=admin
+      - AUTH_PASSWORD=lK5DdNzUP+p+HhZp6Eh/woRuLnyAy7MM
+      - DB_CONNECTION_TYPE=host
+      - DB_DRIVER=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=cypht
+      - DB_USER=cypht
+      - DB_PASS=lK5DdNzUP+p+HhZp6Eh/woRuLnyAy7MM
+      - SESSION_TYPE=DB
+      - USER_CONFIG_TYPE=DB
+      - AUTH_TYPE=IMAP
+      - IMAP_AUTH_SERVER=dovecot
+      - IMAP_AUTH_PORT=143
+      - IMAP_AUTH_TLS=false
+      - DEFAULT_SMTP_SERVER=postfix
+      - DEFAULT_SMTP_PORT=587
+      - DEFAULT_SMTP_TLS=true
+      - USER_SETTINGS_DIR=/var/lib/hm3/users
+      - ATTACHMENT_DIR=/var/lib/hm3/attachments
+    volumes:
+      - cypht-user-data:/var/lib/hm3/users
+      - cypht-attachments:/var/lib/hm3/attachments
+    networks:
+      mailcow-network:
+        aliases:
+          - cypht
+      gateway:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=gateway"
+      - "traefik.http.routers.cypht.rule=Host(`cypht.abdulkhalek.dev`)"
+      - "traefik.http.routers.cypht.entrypoints=websecure"
+      - "traefik.http.routers.cypht.tls=true"
+      - "traefik.http.routers.cypht.tls.certresolver=letsencrypt"
+      - "traefik.http.services.cypht.loadbalancer.server.port=80"
+
+volumes:
+  cypht-user-data:
+  cypht-attachments:
+
 networks:
   gateway:
     external: true
