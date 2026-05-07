@@ -31,6 +31,13 @@ services:
       - "traefik.http.routers.mailcow-autoconfig.tls.certresolver=letsencrypt"
       - "traefik.http.routers.mailcow-autoconfig.service=mailcow-web"
 
+      # mta-sts.abdulkhalek.dev — serves /.well-known/mta-sts.txt via mailcow's mta-sts.php
+      - "traefik.http.routers.mailcow-mta-sts.rule=Host(`mta-sts.abdulkhalek.dev`)"
+      - "traefik.http.routers.mailcow-mta-sts.entrypoints=websecure"
+      - "traefik.http.routers.mailcow-mta-sts.tls=true"
+      - "traefik.http.routers.mailcow-mta-sts.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.mailcow-mta-sts.service=mailcow-web"
+
   # Extract Let's Encrypt certs from Traefik for mail protocols (SMTP/IMAP SSL)
   certdumper:
     image: ghcr.io/kereis/traefik-certs-dumper:latest
